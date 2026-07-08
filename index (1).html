@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitácora Fast Start · Equipo CIE</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f5f5f5; color: #1a1a1a; min-height: 100vh; }
+  .header { background: #FFE614; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid #1a1a1a; }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .header-icon { width: 36px; height: 36px; background: #1a1a1a; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .header h1 { font-size: 18px; font-weight: 700; color: #1a1a1a; }
+  .header p { font-size: 12px; color: #555; margin-top: 2px; }
+  .badge { background: #1a1a1a; color: #FFE614; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+  .tabs { display: flex; border-bottom: 2px solid #ddd; background: #fff; padding: 0 24px; }
+  .tab { padding: 12px 20px; font-size: 13px; font-weight: 600; color: #888; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all .2s; }
+  .tab.active { color: #1a1a1a; border-bottom-color: #FFE614; }
+  .content { padding: 24px; max-width: 900px; margin: 0 auto; }
+  .form-card { background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; padding: 24px; margin-bottom: 24px; }
+  .form-title { font-size: 15px; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+  .form-title span { background: #FFE614; width: 28px; height: 28px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 11px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: .04em; }
+  input, select, textarea { border: 1.5px solid #ddd; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #1a1a1a; font-family: inherit; transition: border-color .2s; background: #fafafa; width: 100%; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #FFE614; background: #fff; }
+  textarea { resize: vertical; min-height: 80px; }
+  .btn-submit { background: #1a1a1a; color: #FFE614; border: none; padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity .2s; width: 100%; margin-top: 6px; }
+  .btn-submit:hover { opacity: .85; }
+  .toast { position: fixed; top: 20px; right: 20px; background: #1a1a1a; color: #FFE614; padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 100; }
+  .toast.show { opacity: 1; }
+  .records-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .records-count { font-size: 13px; color: #555; }
+  .btn-clear { background: none; border: 1.5px solid #ddd; color: #888; padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+  .btn-export { background: #1a1a1a; color: #FFE614; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .empty { text-align: center; padding: 48px 24px; color: #aaa; }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .record-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; }
+  .record-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .record-name { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .record-avatar { width: 30px; height: 30px; background: #FFE614; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #1a1a1a; flex-shrink: 0; }
+  .record-meta { font-size: 11px; color: #888; }
+  .record-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+  .tag-area { background: #f5f5f5; color: #555; }
+  .tag-proceso { background: #1a1a1a; color: #FFE614; }
+  .record-body { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .record-section h4 { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 5px; }
+  .record-section p { font-size: 12px; color: #333; line-height: 1.5; }
+  .btn-delete { background: none; border: none; color: #ccc; cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 4px; }
+  .btn-delete:hover { color: #e57373; }
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+  .stat-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px; text-align: center; }
+  .stat-val { font-size: 28px; font-weight: 700; color: #1a1a1a; }
+  .stat-label { font-size: 11px; color: #888; margin-top: 3px; }
+  .hidden { display: none; }
+  .tl-list { background: #fff; border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .tl-list h3 { font-size: 13px; font-weight: 700; margin-bottom: 12px; color: #1a1a1a; }
+  .tl-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tl-chip { font-size: 11px; padding: 4px 12px; border-radius: 20px; border: 1px solid #ddd; background: #f5f5f5; color: #555; cursor: pointer; transition: all .15s; }
+  .tl-chip:hover { background: #FFE614; border-color: #FFE614; color: #1a1a1a; font-weight: 600; }
+  .tl-chip.critico { border-color: #C62828; color: #C62828; }
+  .tl-chip.critico:hover { background: #C62828; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-icon">📋</div>
+    <div>
+      <h1>Bitácora Fast Start · Equipo CIE</h1>
+      <p>Registro de entrevistas con Team Leaders · eShops 2024</p>
+    </div>
+  </div>
+  <div class="badge" id="totalBadge">0 registros</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('form')">➕ Nuevo registro</div>
+  <div class="tab" onclick="showTab('records')">📋 Bitácora</div>
+</div>
+
+<div class="content">
+
+  <!-- FORM TAB -->
+  <div id="tab-form">
+
+    <!-- TLs sugeridos -->
+    <div class="tl-list">
+      <h3>⚡ TLs prioritarios para entrevistar (top offenders por proceso)</h3>
+      <div class="tl-chips" id="tlSuggestions"></div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-title"><span>👤</span> Datos del Team Leader</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nombre del TL</label>
+          <input type="text" id="tlName" placeholder="ej. Juan Pérez" />
+        </div>
+        <div class="form-group">
+          <label>Usuario / ID</label>
+          <input type="text" id="tlUser" placeholder="ej. jperez" />
+        </div>
+        <div class="form-group">
+          <label>Área</label>
+          <select id="tlArea">
+            <option value="">Seleccionar...</option>
+            <option>Inbound</option>
+            <option>Outbound</option>
+            <option>Inventory</option>
+            <option>Quality</option>
+            <option>Return</option>
+            <option>Transfers MWH</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Proceso</label>
+          <select id="tlProceso">
+            <option value="">Seleccionar...</option>
+            <option>Picking — Edwin Posadas</option>
+            <option>Packing — Diego Miramontes</option>
+            <option>Shipping — Cesar Gomez</option>
+            <option>Inbound — Avril Carmona</option>
+            <option>Putaway</option>
+            <option>Open transfer</option>
+            <option>Stock audit</option>
+            <option>Inbound audit</option>
+            <option>Dispatch</option>
+            <option>Putwallin</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>% Delay histórico</label>
+          <input type="text" id="tlPct" placeholder="ej. 87%" />
+        </div>
+        <div class="form-group">
+          <label>Min promedio histórico</label>
+          <input type="text" id="tlMin" placeholder="ej. 20.5 min" />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-title"><span>🔧</span> Entendiendo al TL</div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>¿Qué herramientas necesita para cumplir el fast start?</label>
+          <textarea id="tlHerramientas" placeholder="ej. Acceso al sistema antes del arranque, radio funcionando, pantalla disponible en su área..."></textarea>
+        </div>
+        <div class="form-group full">
+          <label>¿Qué se le complica al iniciar el turno?</label>
+          <textarea id="tlComplica" placeholder="ej. El personal llega tarde, el sistema tarda en cargar, no recibe el briefing a tiempo..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>¿Tiene algo que aportar al proceso?</label>
+          <textarea id="tlAporta" placeholder="ej. Sugiere hacer el briefing 5 min antes del arranque..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Compromisos acordados</label>
+          <textarea id="tlCompromisos" placeholder="ej. TL se compromete a estar en posición 3 min antes..."></textarea>
+        </div>
+        <div class="form-group full">
+          <label>Notas adicionales</label>
+          <input type="text" id="tlNotas" placeholder="Cualquier observación relevante..." />
+        </div>
+        <div class="form-group">
+          <label>Fecha de entrevista</label>
+          <input type="date" id="tlFecha" />
+        </div>
+        <div class="form-group">
+          <label>Entrevistado por</label>
+          <input type="text" id="tlEntrevistador" placeholder="ej. Avril Carmona" />
+        </div>
+      </div>
+      <button class="btn-submit" onclick="saveRecord()">💾 Guardar registro</button>
+    </div>
+  </div>
+
+  <!-- RECORDS TAB -->
+  <div id="tab-records" class="hidden">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-val" id="statTotal">0</div>
+        <div class="stat-label">TLs entrevistados</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="statHerramientas">0</div>
+        <div class="stat-label">Con necesidades de herramientas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="statCompromisos">0</div>
+        <div class="stat-label">Con compromisos acordados</div>
+      </div>
+    </div>
+
+    <div class="records-header">
+      <div class="records-count" id="recordsCount">Sin registros</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-export" onclick="exportCSV()">📥 Exportar CSV</button>
+        <button class="btn-clear" onclick="clearAll()">Borrar todo</button>
+      </div>
+    </div>
+
+    <div id="recordsList">
+      <div class="empty">
+        <div class="empty-icon">📝</div>
+        <p>Aún no hay registros.<br>Ve a "Nuevo registro" para empezar.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'cie_bitacora_v2';
+let records = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+const TOP_TLS = [
+  {tl:'juancru', pct:100, critico:true},
+  {tl:'lvargasreyes', pct:100, critico:true},
+  {tl:'amcruz', pct:100, critico:true},
+  {tl:'crguzman', pct:100, critico:true},
+  {tl:'guscalvo', pct:99, critico:true},
+  {tl:'haguilar', pct:99, critico:true},
+  {tl:'vanmorales', pct:98, critico:true},
+  {tl:'acarojaime', pct:98, critico:true},
+  {tl:'divaleriano', pct:90, critico:true},
+  {tl:'educruz', pct:91, critico:true},
+  {tl:'tantorres', pct:87, critico:false},
+  {tl:'acarojaime', pct:87, critico:false},
+  {tl:'ebautista', pct:84, critico:false},
+  {tl:'molopez', pct:88, critico:false},
+  {tl:'dzamudiomart', pct:71, critico:false},
+];
+
+function initSuggestions() {
+  const done = records.map(r => r.usuario);
+  const unique = [...new Map(TOP_TLS.map(t => [t.tl, t])).values()];
+  document.getElementById('tlSuggestions').innerHTML = unique.map(t => {
+    const isDone = done.includes(t.tl);
+    return `<div class="tl-chip ${t.critico?'critico':''}" onclick="prefill('${t.tl}')" style="${isDone?'opacity:.4;text-decoration:line-through':''}">
+      ${isDone ? '✓ ' : ''}@${t.tl} · ${t.pct}%
+    </div>`;
+  }).join('');
+}
+
+function prefill(user) {
+  document.getElementById('tlUser').value = user;
+  document.getElementById('tlName').focus();
+  showToast('TL precargado — completa los datos');
+}
+
+function showTab(tab) {
+  document.getElementById('tab-form').classList.toggle('hidden', tab !== 'form');
+  document.getElementById('tab-records').classList.toggle('hidden', tab !== 'records');
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', (tab==='form'&&i===0)||(tab==='records'&&i===1)));
+  if (tab === 'records') renderRecords();
+  if (tab === 'form') initSuggestions();
+}
+
+function saveRecord() {
+  const name = document.getElementById('tlName').value.trim();
+  if (!name) { alert('Por favor ingresa el nombre del TL.'); return; }
+  const record = {
+    id: Date.now(),
+    fecha: document.getElementById('tlFecha').value || new Date().toISOString().split('T')[0],
+    entrevistador: document.getElementById('tlEntrevistador').value.trim(),
+    nombre: name,
+    usuario: document.getElementById('tlUser').value.trim(),
+    area: document.getElementById('tlArea').value,
+    proceso: document.getElementById('tlProceso').value,
+    pct: document.getElementById('tlPct').value.trim(),
+    min: document.getElementById('tlMin').value.trim(),
+    herramientas: document.getElementById('tlHerramientas').value.trim(),
+    complica: document.getElementById('tlComplica').value.trim(),
+    aporta: document.getElementById('tlAporta').value.trim(),
+    compromisos: document.getElementById('tlCompromisos').value.trim(),
+    notas: document.getElementById('tlNotas').value.trim(),
+  };
+  records.unshift(record);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  updateBadge();
+  ['tlName','tlUser','tlHerramientas','tlComplica','tlAporta','tlCompromisos','tlNotas','tlPct','tlMin','tlEntrevistador'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('tlArea').value = '';
+  document.getElementById('tlProceso').value = '';
+  document.getElementById('tlFecha').value = '';
+  initSuggestions();
+  showToast('✓ Registro guardado correctamente');
+}
+
+function deleteRecord(id) {
+  if (!confirm('¿Eliminar este registro?')) return;
+  records = records.filter(r => r.id !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  updateBadge(); renderRecords();
+}
+
+function clearAll() {
+  if (!confirm('¿Borrar todos los registros?')) return;
+  records = [];
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  updateBadge(); renderRecords();
+}
+
+function exportCSV() {
+  if (!records.length) { alert('No hay registros para exportar.'); return; }
+  const hdrs = ['Fecha','Nombre','Usuario','Área','Proceso','% Delay','Min promedio','Herramientas','Complicaciones','Aporta','Compromisos','Notas','Entrevistador'];
+  const rows = records.map(r => [r.fecha,r.nombre,r.usuario,r.area,r.proceso,r.pct,r.min,r.herramientas,r.complica,r.aporta,r.compromisos,r.notas,r.entrevistador].map(v => `"${(v||'').replace(/"/g,'""')}"`).join(','));
+  const csv = [hdrs.join(','), ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
+  a.download = 'bitacora_cie_faststart.csv';
+  a.click();
+  showToast('✓ CSV exportado');
+}
+
+function renderRecords() {
+  const list = document.getElementById('recordsList');
+  document.getElementById('statTotal').textContent = records.length;
+  document.getElementById('statHerramientas').textContent = records.filter(r => r.herramientas).length;
+  document.getElementById('statCompromisos').textContent = records.filter(r => r.compromisos).length;
+  if (!records.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">📝</div><p>Aún no hay registros.</p></div>';
+    document.getElementById('recordsCount').textContent = 'Sin registros';
+    return;
+  }
+  document.getElementById('recordsCount').textContent = `${records.length} entrevista${records.length>1?'s':''} registrada${records.length>1?'s':''}`;
+  list.innerHTML = records.map(r => `
+    <div class="record-card">
+      <div class="record-top">
+        <div class="record-name">
+          <div class="record-avatar">${r.nombre.split(' ').map(n=>n[0]).slice(0,2).join('')}</div>
+          ${r.nombre} ${r.usuario ? '<span style="font-weight:400;color:#888;font-size:12px">· @'+r.usuario+'</span>' : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="record-meta">${r.fecha}${r.entrevistador ? ' · '+r.entrevistador : ''}</div>
+          <button class="btn-delete" onclick="deleteRecord(${r.id})">✕</button>
+        </div>
+      </div>
+      <div class="record-tags">
+        ${r.area ? '<span class="tag tag-area">'+r.area+'</span>' : ''}
+        ${r.proceso ? '<span class="tag tag-proceso">'+r.proceso.split(' — ')[0]+'</span>' : ''}
+        ${r.pct ? '<span class="tag" style="background:#FFEBEE;color:#C62828">'+r.pct+' delay</span>' : ''}
+        ${r.min ? '<span class="tag" style="background:#FFF3E0;color:#E65100">'+r.min+'</span>' : ''}
+      </div>
+      <div class="record-body">
+        <div class="record-section"><h4>🔧 Herramientas que necesita</h4><p>${r.herramientas||'<em style="color:#bbb">No registrado</em>'}</p></div>
+        <div class="record-section"><h4>⚠️ Qué se le complica</h4><p>${r.complica||'<em style="color:#bbb">No registrado</em>'}</p></div>
+        ${r.aporta ? '<div class="record-section"><h4>💡 Qué aporta</h4><p>'+r.aporta+'</p></div>' : ''}
+        ${r.compromisos ? '<div class="record-section"><h4>✅ Compromisos</h4><p>'+r.compromisos+'</p></div>' : ''}
+        ${r.notas ? '<div class="record-section" style="grid-column:1/-1"><h4>📝 Notas</h4><p>'+r.notas+'</p></div>' : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateBadge() {
+  document.getElementById('totalBadge').textContent = records.length + ' registro' + (records.length!==1?'s':'');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Init
+document.getElementById('tlFecha').value = new Date().toISOString().split('T')[0];
+updateBadge();
+initSuggestions();
+</script>
+</body>
+</html>
